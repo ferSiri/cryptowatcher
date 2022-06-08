@@ -8,6 +8,9 @@ import schemaTypes from 'all:part:@sanity/base/schema-type'
 import crypto from './crypto'
 import account from './account'
 import user from './user'
+import role from './role'
+import userRoles from './userRoles'
+import userFavourites from './userFavourites'
 import verificationToken from './verification-token'
 
 
@@ -25,6 +28,9 @@ export default createSchema({
     crypto,
     account,
     user,
-    verificationToken
+    verificationToken,
+    role,
+    userRoles,
+    userFavourites
   ]),
 })

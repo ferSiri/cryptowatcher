@@ -17,11 +17,6 @@ export default {
       name: 'password',
       type: 'string',
       hidden: true
-    },
-    {
-        name: 'isAdmin',
-        title: 'Is Admin',
-        type: 'boolean'
     }
   ]
 };

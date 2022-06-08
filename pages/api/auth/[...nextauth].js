@@ -11,7 +11,21 @@ const options = {
     strategy: 'jwt'
   },
   secret: 'any-secret-word',
-  adapter: SanityAdapter(client)
+  adapter: SanityAdapter(client),
+  callbacks: {
+    session: async ({ session, token }) => {
+      if (session?.user) {
+        session.user.id = token.uid;
+      }
+      return session;
+    },
+    jwt: async ({ user, token }) => {
+      if (user) {
+        token.uid = user.id;
+      }
+      return token;
+    },
+  }
 };
 
 export default NextAuth(options);

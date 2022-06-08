@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { createClient } from "next-sanity";
 import Coin from './components/Coin';
-
-const client = createClient({
-  projectId: "37j4qhjm",
-  dataset: "production",
-  useCdn: true
-});
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { client } from '../lib/sanity';
 
 export default function Home() {
+  
   const [coins, setCoins] = useState([]);
   const [searchString, setSearchString] = useState('');
+  const { data, status } = useSession();
+  const [ userRole, setUserRole ] = useState({});
+  const [ userFavs, setUserFavs ] = useState([]);
 
   const fetchCoins = async () =>{
     const userCoins = await client.fetch(`*[_type == "crypto"]`);
@@ -20,7 +20,6 @@ export default function Home() {
     setCoins(userCoins);
     setSearchString(search); 
   }
-
 
   const fetchCoinsInfo = () =>{
     fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
@@ -46,6 +45,22 @@ export default function Home() {
   },[]);
 
   useEffect(()=>{
+    if(data && data.user){
+      fetch(`/api/user/role?uId=${data.user.id}`,{method: 'GET'})
+      .then(response => response.json())
+      .then(res=> setUserRole(res))
+    }
+  },[data]);
+
+  useEffect(()=>{
+    if(data && data.user){
+      fetch(`/api/user/favCoins?uId=${data.user.id}`,{method: 'GET'})
+      .then(response => response.json())
+      .then(res=> setUserFavs(res.userFavs && res.userFavs ? res.userFavs : []))
+    }
+  },[data]);
+
+  useEffect(()=>{
     if(searchString){
       fetchCoinsInfo();
       const interval = setInterval(()=>{
@@ -55,10 +70,15 @@ export default function Home() {
     }
   }, [searchString])
   
-  console.log(coins)
   return (
     <div>
-      {coins.map(coin=><Coin coin={coin} client={client}/>)}
+      {coins.map(coin=>
+        <Coin 
+          coin={coin} 
+          userData={data}
+          key={coin._id}
+          isFav={coin.canBeSaved && userFavs.some(favs=>favs._id===coin._id)}
+        />)}
     </div>
   )
 }
