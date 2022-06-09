@@ -1,12 +1,15 @@
 import '../styles/globals.css'
 import '../styles/tailwind.css'
 import { SessionProvider } from 'next-auth/react';
+import { UserContext } from '../context/userContext';
 
 function MyApp({ Component, pageProps }) {
   
   return (
     <SessionProvider session={pageProps.session}>
-      <Component {...pageProps} />
+      <UserContext>
+        <Component {...pageProps} />
+      </UserContext>
     </SessionProvider>
   )
 }

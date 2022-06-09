@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
-import { createClient } from "next-sanity";
 import Coin from './components/Coin';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { client } from '../lib/sanity';
+import { useAppContext } from '../context/userContext';
 
 export default function Home() {
   
+  const { roleName } = useAppContext();
   const [coins, setCoins] = useState([]);
   const [searchString, setSearchString] = useState('');
   const { data, status } = useSession();
-  const [ userRole, setUserRole ] = useState({});
   const [ userFavs, setUserFavs ] = useState([]);
-
   const fetchCoins = async () =>{
     const userCoins = await client.fetch(`*[_type == "crypto"]`);
     const search = userCoins.reduce((str, current, i, arr)=>{
@@ -31,14 +30,34 @@ export default function Home() {
     .then(response => response.json())
     .then(data => {
       const coinsInfo = coins.map(coin=>{
-        coin.price = data[coin.internalId].usd;
-        coin.marketCap = data[coin.internalId].usd_market_cap;
-        coin.vol = data[coin.internalId].usd_24h_vol;
+        coin.price = data[coin.internalId]?.usd;
+        coin.marketCap = data[coin.internalId]?.usd_market_cap;
+        coin.vol = data[coin.internalId]?.usd_24h_vol;
         return coin;
       });
       setCoins(coinsInfo);
     } )
   }
+
+  const fetchFavs = () =>{
+    fetch(`/api/user/favCoins?uId=${data.user.id}`,{method: 'GET'})
+    .then(response => response.json())
+    .then(res=> setUserFavs(res.userFavs && res.userFavs ? res.userFavs : []))
+  }
+
+  const handleFav = async (coin,isFav) =>{
+    await fetch(`/api/user/${isFav ? 'removeFav':'addFav'}`,{
+        method: 'POST',
+        body: JSON.stringify({uId:data.user.id, cryptoId:coin._id})
+    }).then((res)=>setUserFavs(prevFavs=>{
+      //LA RESPUESTA DE LA MUTATION TARDA DEMASIADO COMO PARA ESPERAR Y PEDIR LOS FAVS NUEVAMENTE
+      if(isFav){
+        return prevFavs.filter(fav=>fav._id!==coin._id);
+      }else{
+        return [...prevFavs,{_id: coin._id}];
+      }
+    }) );
+}
 
   useEffect(()=>{
     fetchCoins();
@@ -46,17 +65,7 @@ export default function Home() {
 
   useEffect(()=>{
     if(data && data.user){
-      fetch(`/api/user/role?uId=${data.user.id}`,{method: 'GET'})
-      .then(response => response.json())
-      .then(res=> setUserRole(res))
-    }
-  },[data]);
-
-  useEffect(()=>{
-    if(data && data.user){
-      fetch(`/api/user/favCoins?uId=${data.user.id}`,{method: 'GET'})
-      .then(response => response.json())
-      .then(res=> setUserFavs(res.userFavs && res.userFavs ? res.userFavs : []))
+      fetchFavs();
     }
   },[data]);
 
@@ -77,7 +86,8 @@ export default function Home() {
           coin={coin} 
           userData={data}
           key={coin._id}
-          isFav={coin.canBeSaved && userFavs.some(favs=>favs._id===coin._id)}
+          isFav={coin.canBeSaved && userFavs && userFavs.some(favs=>favs._id===coin._id)}
+          handleFav={handleFav}
         />)}
     </div>
   )
