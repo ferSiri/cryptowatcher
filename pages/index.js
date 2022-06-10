@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import Coin from '../components/Coin';
 import { useSession } from 'next-auth/react';
 import { client } from '../lib/sanity';
 import NavBar from '../components/NavBar';
+import CoinsArea from '../components/CoinsArea';
 
 export default function Home() {
   
@@ -21,14 +21,14 @@ export default function Home() {
         vs_currencies: 'usd',
         ids: search,
         include_market_cap: true,
-        include_24hr_vol: true
+        include_24hr_change: true
       }))
       .then(response => response.json())
       .then(data => {
         const coinsInfo = res.map(coin=>{
           coin.price = data[coin.internalId]?.usd;
           coin.marketCap = data[coin.internalId]?.usd_market_cap;
-          coin.vol = data[coin.internalId]?.usd_24h_vol;
+          coin.change = data[coin.internalId]?.usd_24h_change;
           return coin;
         })
         .sort((a,b)=>b.price-a.price);
@@ -43,14 +43,14 @@ export default function Home() {
       vs_currencies: 'usd',
       ids: searchString,
       include_market_cap: true,
-      include_24hr_vol: true
+      include_24hr_change: true
     }))
     .then(response => response.json())
     .then(data => {
       const coinsInfo = coins.map(coin=>{
         coin.price = data[coin.internalId]?.usd;
         coin.marketCap = data[coin.internalId]?.usd_market_cap;
-        coin.vol = data[coin.internalId]?.usd_24h_vol;
+        coin.change = data[coin.internalId]?.usd_24h_change;
         return coin;
       });
       setCoins(coinsInfo.sort((a,b)=>b.price-a.price));
@@ -77,6 +77,15 @@ export default function Home() {
     }) );
   }
 
+  const handleDeleteCoin = async (coin) => {
+    await fetch('/api/admin/deleteCoin',{
+      method: 'POST',
+      body: JSON.stringify({ _id:coin._id})
+    }).then((res)=>{
+        setCoins(prev=>prev.filter(c=>c._id !== coin._id))
+    })
+  }
+
   useEffect(()=>{
     fetchCoins();
   },[]);
@@ -99,14 +108,13 @@ export default function Home() {
   return (
     <div>
       <NavBar user={data}/>
-      {coins.map(coin=>
-        <Coin 
-          coin={coin} 
-          userData={data}
-          key={coin._id}
-          isFav={coin.canBeSaved && userFavs && userFavs.some(favs=>favs._id===coin._id)}
-          handleFav={handleFav}
-        />)}
+      <CoinsArea
+        coins={coins}
+        userData={data} 
+        userFavs={userFavs}
+        handleFav={handleFav}
+        handleDeleteCoin={handleDeleteCoin}
+      />
     </div>
   )
 }

@@ -50,9 +50,9 @@ const Credentials = () => {
   const emailVerificationError = verificationError === "Email does not exist" && verificationError;
   
   return (
-    <div className="bg-gradient-to-r from-pink-800 to-indigo-900 flex justify-center items-center w-full h-full">       
-      <div className='flex flex-col p-5 w-96 items-center justify-between bg-white shadow h-96 rounded'>
-        <form className='flex flex-col w-96 items-center justify-between' onSubmit={handleSubmit(showSignUp ? submit : submitSignIn)}>
+    <div className="w-full h-full flex justify-center items-center bg-gradient-to-r from-pink-800 to-indigo-900">       
+      <div className='h-96 w-96 flex flex-col items-center justify-between p-5 rounded bg-white shadow '>
+        <form className='flex flex-col items-center justify-between w-96' onSubmit={handleSubmit(showSignUp ? submit : submitSignIn)}>
           <h1 className="mb-5 font-bold text-xl">{showSignUp ? "Sign Up" : "Login"}</h1>
           <div className='flex flex-col items-center'>
             {showSignUp && <TextInput placeholder='Name' type="text" {...register("name")} />}
@@ -61,10 +61,10 @@ const Credentials = () => {
             <div className="h-6 text-sm text-red-600">{errors.email?.message || emailVerificationError}</div>
             <TextInput placeholder='Password' type="password" {...register("password", { required: true })} />
             <div className="h-6 text-sm text-red-600">{errors.password?.message || passwordVerificationError}</div>
-            <input className="bg-pink-600 rounded h-8 w-20 text-white font-semibold cursor-pointer" type="submit" value={showSignUp ? "Sign Up" : "Login"}/>
+            <input className="h-8 w-20 bg-pink-600 rounded text-white font-semibold cursor-pointer" type="submit" value={showSignUp ? "Sign Up" : "Login"}/>
           </div>
         </form>
-        <button onClick={()=>setShowSignUp(prev=>!prev)} className="text-xs font-semibold cursor-pointer align-bottom mt-12">{!showSignUp ? "Sign Up" : "Login"}</button>
+        <button onClick={()=>setShowSignUp(prev=>!prev)} className="align-bottom mt-12 text-xs font-semibold cursor-pointer">{!showSignUp ? "Sign Up" : "Login"}</button>
       </div>
     </div>
   );
