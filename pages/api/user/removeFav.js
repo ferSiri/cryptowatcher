@@ -5,7 +5,7 @@ export default async function addFav(req,res){
     const cryptoToRemove = [`coins[_ref=="${cryptoId}"]`];
     
     try {
-        await client.patch(`${uId}-favourite`).unset(cryptoToRemove).commit()  
+        await client.patch(`${uId}-favorite`).unset(cryptoToRemove).commit()  
     }
     catch (err){
         return res.status(500).json({message:"Error in mutation",err});

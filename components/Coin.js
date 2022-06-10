@@ -51,7 +51,7 @@ const Coin = ({coin, userData, isFav, handleFav, handleDeleteCoin}) => {
             </Modal>
             <div className='w-3/12 flex items-center '>
                 <div className='h-5 w-5 relative mr-6'>
-                    {coin.logo && <Image {...imageProps}  layout="fill" objectFit='contain'/>}
+                    {coin.logo && <Image {...imageProps}   objectFit='contain'/>}
                 </div>
                 <div className='w-52 '>{coin.cryptoName}</div>
                 {coin.canBeSaved && userData &&

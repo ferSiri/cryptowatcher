@@ -45,7 +45,7 @@ const Addcoin = () => {
         <label htmlFor="internalId">Internal Id</label>
         <input  className="border border-black m-1 w-80" type="text" {...register("internalId", { required: true })} />
         {errors.internalId && <span>This field is required</span>}
-        <label htmlFor="canBeSaved">Can be saved as favourite</label>
+        <label htmlFor="canBeSaved">Can be saved as favorite</label>
         <input className="border border-black m-1 w-80" type="checkbox" {...register("canBeSaved")} />
         <input type="submit" />
         </form>

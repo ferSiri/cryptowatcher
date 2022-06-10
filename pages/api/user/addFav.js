@@ -4,7 +4,7 @@ export default async function addFav(req,res){
     /*SE PODRÍA BUSCAR PRIMERO SI EXISTE CON LA QUERY *[references($person) && _type == "userFavs"] { person: uId}
     , SI EXISTE UN PATCH Y SINO UN CREATE Y LUEGO UN PATCH PERO TARDA DEMASIADO*/
     const {uId, cryptoId} = JSON.parse(req.body);
-    const favsId = `${uId}-favourite`;
+    const favsId = `${uId}-favorite`;
     const doc = {
         _id: favsId,
         _type: 'userFavs',

@@ -10,7 +10,7 @@ import account from './account'
 import user from './user'
 import role from './role'
 import userRoles from './userRoles'
-import userFavourites from './userFavourites'
+import userFavorites from './userFavorites'
 import verificationToken from './verification-token'
 
 
@@ -31,6 +31,6 @@ export default createSchema({
     verificationToken,
     role,
     userRoles,
-    userFavourites
+    userFavorites
   ]),
 })

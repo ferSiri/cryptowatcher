@@ -1,6 +1,6 @@
 export default {
   name: 'userFavs',
-  title: 'User Favourite Coins',
+  title: 'User Favorite Coins',
   type: 'document',
   fields: [
     {
