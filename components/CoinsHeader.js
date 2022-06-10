@@ -9,21 +9,21 @@ const CoinsHeader = ({filterFavorites, setFilterFavorites, userData}) => {
                 {userData &&
                     <div className='h-full flex items-center' onClick={()=>setFilterFavorites(!filterFavorites)}>
                         {filterFavorites
-                        ?<TbFilterOff className='absolute cursor-pointer'/>
-                        :<TbFilter className='absolute cursor-pointer'/>
+                        ?<TbFilterOff className='absolute cursor-pointer text-rose-900'/>
+                        :<TbFilter className='absolute cursor-pointer text-rose-900'/>
                         }
                     </div> 
                 }
                 <p className='ml-11'>Name</p> 
             </div>
             <div className='w-3/12 flex items-center  font-bold'>
-                Price
+                Current Price
             </div>
             <div className='w-3/12 flex items-center  font-bold'>
-                Market Cap
+                Market Capitalization
             </div>
             <div className='w-3/12 flex items-center justify-between  font-bold'>
-                Change
+                Last 24h change
             </div>
         </div>
     )

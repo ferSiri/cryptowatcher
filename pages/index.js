@@ -85,7 +85,7 @@ export default function Home() {
         setCoins(prev=>prev.filter(c=>c._id !== coin._id))
     })
   }
-
+  
   useEffect(()=>{
     fetchCoins();
   },[]);

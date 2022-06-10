@@ -11,6 +11,8 @@ export function UserContext({ children }) {
         fetch(`/api/user/role?uId=${data.user.id}`,{method: 'GET'})
         .then(response => response.json())
         .then(res=> setUserRole(res.userRole &&  res.userRole.role ? res.userRole.role : {roleName:"common"} ))
+      }else{
+        setUserRole({roleName:"unregistered"})
       }
       },[data]);
 

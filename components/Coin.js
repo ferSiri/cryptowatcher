@@ -10,7 +10,9 @@ import { BsGraphUp, BsGraphDown } from 'react-icons/bs';
 import { TbReportMoney } from 'react-icons/tb';
 import { RiHeartLine, RiHeartFill } from 'react-icons/ri';
 import { FaTrashAlt } from 'react-icons/fa';
+import { TbEdit } from 'react-icons/tb';
 import DeleteModal from './DeleteModal';
+import GenericCoin from '../public/generic.png';
 
 const Coin = ({coin, userData, isFav, handleFav, handleDeleteCoin}) => {
     Modal.setAppElement('#react-modals');
@@ -41,7 +43,7 @@ const Coin = ({coin, userData, isFav, handleFav, handleDeleteCoin}) => {
     const marketCap = coin.marketCap ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(coin.marketCap) : "0";
     const coinChange = coin.change ? coin.change.toFixed(2) : "0";
     return (
-        <div className='h-12 w-full flex items-center mb-3 px-3  rounded shadow-lg hover:bg-blue-200'>
+        <div className='h-12 w-full relative flex items-center mb-3 px-3  rounded shadow-lg hover:bg-blue-200'>
             <Modal
                 isOpen={deleteModalOpen}
                 onRequestClose={()=>setDeleteModalOpen(false)}
@@ -51,21 +53,24 @@ const Coin = ({coin, userData, isFav, handleFav, handleDeleteCoin}) => {
             </Modal>
             <div className='w-3/12 flex items-center '>
                 <div className='h-5 w-5 relative mr-6'>
-                    {coin.logo && <Image {...imageProps}   objectFit='contain'/>}
+                    {coin.logo 
+                        ? <Image {...imageProps}   objectFit='contain'/>
+                        : <Image src={GenericCoin}   objectFit='contain'/>
+                    }
                 </div>
                 <div className='w-52 '>{coin.cryptoName}</div>
                 {coin.canBeSaved && userData &&
                     (isFav
-                            ? 
-                            <RiHeartFill 
-                                className='mr-2 text-red-500 cursor-pointer'
-                                onClick={()=> handleFav(coin, isFav)}
-                            />
-                            : 
-                            <RiHeartLine 
-                                className='mr-2 text-black cursor-pointer'
-                                onClick={()=> handleFav(coin, isFav)}
-                            />
+                        ? 
+                        <RiHeartFill 
+                            className='mr-2 text-red-500 cursor-pointer'
+                            onClick={()=> handleFav(coin, isFav)}
+                        />
+                        : 
+                        <RiHeartLine 
+                            className='mr-2 text-black cursor-pointer'
+                            onClick={()=> handleFav(coin, isFav)}
+                        />
                     )
                 }
             </div>
@@ -79,25 +84,26 @@ const Coin = ({coin, userData, isFav, handleFav, handleDeleteCoin}) => {
             </div>
             <div className='w-3/12 flex items-center'>
                 {coin.change < 0 ? <BsGraphDown className='mr-2 text-red-500'/> : <BsGraphUp className='mr-2 text-green-500'/>}
-                <p className='text-ellipsis overflow-hidden whitespace-pre'>{coinChange}</p>
+                <p className='text-ellipsis overflow-hidden whitespace-pre'>{`${coinChange}%`}</p>
             </div>
+            <div className='flex item absolute right-2'>
+                {
+                    roleName === "admin" &&
+                        <TbEdit 
+                            className='mr-4 text-rose-900 cursor-pointer text-xl'
+                            onClick={()=>router.push({ pathname: '/addCoin', query: editParams })}
+                        />
+                }
                 {
                     roleName === "admin" &&
                         <FaTrashAlt 
-                            className='mr-2 text-black cursor-pointer'
+                            className='mr-2 text-rose-900 cursor-pointer'
                             onClick={()=>setDeleteModalOpen(true)}
                         />
                 }
+            </div>
         </div>
-    )
-    /* return (
-        <div className="w-100% m-5">
-            {coin.logo && <Image {...imageProps} width='200px' height='200px' />}
-            <h1 className={""}>{coin.cryptoName}</h1>
-            {coin.canBeSaved && userData && <h3 className={`pointer ${isFav ? "bg-red-700" :""}`} onClick={()=> handleFav(coin, isFav)}>Corazón</h3>}
-            {roleName === 'admin' && <h3 onClick={()=>router.push({ pathname: '/addCoin', query: editParams })}>Editar Crypto</h3>}
-        </div>
-    ) */
+    );
 }
 
 export default Coin;
