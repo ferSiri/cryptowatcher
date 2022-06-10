@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUp } from 'next-auth-sanity/client';
 import userSchema from '../validations/userSchema';
-import TextInput from './components/TextInput';
+import TextInput from '../components/TextInput';
 
 const Credentials = () => {
   const router = useRouter();

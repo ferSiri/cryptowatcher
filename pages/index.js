@@ -1,23 +1,41 @@
 import { useEffect, useState } from 'react';
-import Coin from './components/Coin';
+import Coin from '../components/Coin';
 import { useSession } from 'next-auth/react';
 import { client } from '../lib/sanity';
-import { useAppContext } from '../context/userContext';
+import NavBar from '../components/NavBar';
 
 export default function Home() {
   
-  const { roleName } = useAppContext();
   const [coins, setCoins] = useState([]);
   const [searchString, setSearchString] = useState('');
-  const { data, status } = useSession();
+  const { data } = useSession();
   const [ userFavs, setUserFavs ] = useState([]);
+
   const fetchCoins = async () =>{
-    const userCoins = await client.fetch(`*[_type == "crypto"]`);
-    const search = userCoins.reduce((str, current, i, arr)=>{
-      return str+=`${current.internalId}${arr[i+1] ? ',':''}`;
-    },'');
-    setCoins(userCoins);
-    setSearchString(search); 
+    await client.fetch(`*[_type == "crypto"]`)
+    .then(res=>{
+      const search = res.reduce((str, current, i, arr)=>{
+        return str+=`${current.internalId}${arr[i+1] ? ',':''}`;
+      },'');
+      fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
+        vs_currencies: 'usd',
+        ids: search,
+        include_market_cap: true,
+        include_24hr_vol: true
+      }))
+      .then(response => response.json())
+      .then(data => {
+        const coinsInfo = res.map(coin=>{
+          coin.price = data[coin.internalId]?.usd;
+          coin.marketCap = data[coin.internalId]?.usd_market_cap;
+          coin.vol = data[coin.internalId]?.usd_24h_vol;
+          return coin;
+        })
+        .sort((a,b)=>b.price-a.price);
+        setCoins(coinsInfo);
+        setSearchString(search);
+      } )
+    })
   }
 
   const fetchCoinsInfo = () =>{
@@ -34,8 +52,8 @@ export default function Home() {
         coin.marketCap = data[coin.internalId]?.usd_market_cap;
         coin.vol = data[coin.internalId]?.usd_24h_vol;
         return coin;
-      }).sort((a,b)=>a.price-b.price);
-      setCoins(coinsInfo);
+      });
+      setCoins(coinsInfo.sort((a,b)=>b.price-a.price));
     } )
   }
 
@@ -57,7 +75,7 @@ export default function Home() {
         return [...prevFavs,{_id: coin._id}];
       }
     }) );
-}
+  }
 
   useEffect(()=>{
     fetchCoins();
@@ -71,17 +89,16 @@ export default function Home() {
 
   useEffect(()=>{
     if(searchString){
-      fetchCoinsInfo();
       const interval = setInterval(()=>{
         fetchCoinsInfo();
        },60000)
       return()=>clearInterval(interval);
     }
-  }, [searchString])
+  }, [searchString]) 
   
-  console.log(roleName, data)
   return (
-    <div className="container">
+    <div>
+      <NavBar user={data}/>
       {coins.map(coin=>
         <Coin 
           coin={coin} 

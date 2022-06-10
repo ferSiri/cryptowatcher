@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useNextSanityImage } from 'next-sanity-image';
-import { client } from '../../lib/sanity';
-import { useAppContext } from '../../context/userContext';
+import { client } from './../lib/sanity';
+import { useAppContext } from './../context/userContext';
 
 const Coin = ({coin, userData, isFav, handleFav}) => {
     const router = useRouter();
@@ -17,6 +17,7 @@ const Coin = ({coin, userData, isFav, handleFav}) => {
         coinInternalId: coin.internalId,
         coinCanbeSaved: coin.canBeSaved
     };
+    console.log(coin.cryptoName, coin.price)
     return (
         <div className="w-100% m-5">
             {coin.logo && <Image {...imageProps} width='200px' height='200px' />}
