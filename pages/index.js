@@ -34,7 +34,7 @@ export default function Home() {
         coin.marketCap = data[coin.internalId]?.usd_market_cap;
         coin.vol = data[coin.internalId]?.usd_24h_vol;
         return coin;
-      });
+      }).sort((a,b)=>a.price-b.price);
       setCoins(coinsInfo);
     } )
   }
@@ -79,8 +79,9 @@ export default function Home() {
     }
   }, [searchString])
   
+  console.log(roleName, data)
   return (
-    <div>
+    <div className="container">
       {coins.map(coin=>
         <Coin 
           coin={coin} 
