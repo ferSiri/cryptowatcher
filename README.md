@@ -3,3 +3,4 @@
 3- solicitar las variables de entorno de .env.local
 4- si se quiere acceder al front de sanity solicitar autorización
 5- en dos terminales correr los comandos "npm run dev" y "npm run sanity"
+6- primer usuario administrador user: fer@fer.com / pass: 111111111ee
