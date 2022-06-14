@@ -12,78 +12,73 @@ export default function Home() {
   const [ userFavs, setUserFavs ] = useState([]);
 
   const fetchCoins = async () =>{
-    await client.fetch(`*[_type == "crypto"]`)
-    .then(res=>{
-      const search = res.reduce((str, current, i, arr)=>{
+      const sanityCoinsData = await client.fetch(`*[_type == "crypto"]`);
+      const search = await sanityCoinsData.reduce((str, current, i, arr)=>{
         return str+=`${current.internalId}${arr[i+1] ? ',':''}`;
       },'');
-      fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
+      const geckoRes = await fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
         vs_currencies: 'usd',
         ids: search,
         include_market_cap: true,
         include_24hr_change: true
-      }))
-      .then(response => response.json())
-      .then(data => {
-        const coinsInfo = res.map(coin=>{
-          coin.price = data[coin.internalId]?.usd;
-          coin.marketCap = data[coin.internalId]?.usd_market_cap;
-          coin.change = data[coin.internalId]?.usd_24h_change;
-          return coin;
-        })
-        .sort((a,b)=>b.price-a.price);
-        setCoins(coinsInfo);
-        setSearchString(search);
-      } )
-    })
+      }));
+      const geckoData = await geckoRes.json();
+      const coinsInfo = sanityCoinsData.map(coin=>{
+        coin.price = geckoData[coin.internalId]?.usd;
+        coin.marketCap = geckoData[coin.internalId]?.usd_market_cap;
+        coin.change = geckoData[coin.internalId]?.usd_24h_change;
+        return coin;
+      }).sort((a,b)=>b.price-a.price);
+      setCoins(coinsInfo);
+      setSearchString(search);
   }
 
-  const fetchCoinsInfo = () =>{
-    fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
+  const fetchCoinsInfo = async () =>{
+    const geckoRes = await fetch('https://api.coingecko.com/api/v3/simple/price?' + new URLSearchParams({
       vs_currencies: 'usd',
       ids: searchString,
       include_market_cap: true,
       include_24hr_change: true
     }))
-    .then(response => response.json())
-    .then(data => {
-      const coinsInfo = coins.map(coin=>{
-        coin.price = data[coin.internalId]?.usd;
-        coin.marketCap = data[coin.internalId]?.usd_market_cap;
-        coin.change = data[coin.internalId]?.usd_24h_change;
-        return coin;
-      });
-      setCoins(coinsInfo.sort((a,b)=>b.price-a.price));
-    } )
+    const geckoData = await geckoRes.json();
+    const coinsInfo = coins.map(coin=>{
+      coin.price = geckoData[coin.internalId]?.usd;
+      coin.marketCap = geckoData[coin.internalId]?.usd_market_cap;
+      coin.change = geckoData[coin.internalId]?.usd_24h_change;
+      return coin;
+    }).sort((a,b)=>b.price-a.price);
+    setCoins(coinsInfo);
   }
 
-  const fetchFavs = () =>{
-    fetch(`/api/user/favCoins?uId=${data.user.id}`,{method: 'GET'})
-    .then(response => response.json())
-    .then(res=> setUserFavs(res.userFavs && res.userFavs ? res.userFavs : []))
+  const fetchFavs = async () =>{
+    const favRes = await fetch(`/api/user/favCoins?uId=${data.user.id}`,{method: 'GET'});
+    const userFavsData = await favRes.json();
+    setUserFavs(userFavsData && userFavsData.userFavs ? userFavsData.userFavs : []);
   }
 
   const handleFav = async (coin,isFav) =>{
-    await fetch(`/api/user/${isFav ? 'removeFav':'addFav'}`,{
+    const favActionResponse = await fetch(`/api/user/${isFav ? 'removeFav':'addFav'}`,{
         method: 'POST',
         body: JSON.stringify({uId:data.user.id, cryptoId:coin._id})
-    }).then((res)=>setUserFavs(prevFavs=>{
+    });
+    setUserFavs(prevFavs=>{
       //LA RESPUESTA DE LA MUTATION TARDA DEMASIADO COMO PARA ESPERAR Y PEDIR LOS FAVS NUEVAMENTE
-      if(isFav){
-        return prevFavs.filter(fav=>fav._id!==coin._id);
-      }else{
-        return [...prevFavs,{_id: coin._id}];
+      if(favActionResponse){
+        if(isFav){
+          return prevFavs.filter(fav=>fav._id!==coin._id);
+        }else{
+          return [...prevFavs,{_id: coin._id}];
+        }
       }
-    }) );
+    });
   }
 
   const handleDeleteCoin = async (coin) => {
-    await fetch('/api/admin/deleteCoin',{
+    const deleteCoinResponse = await fetch('/api/admin/deleteCoin',{
       method: 'POST',
       body: JSON.stringify({ _id:coin._id})
-    }).then((res)=>{
-        setCoins(prev=>prev.filter(c=>c._id !== coin._id))
-    })
+    });
+    setCoins(prev=>prev.filter(c=>c._id !== coin._id));
   }
   
   useEffect(()=>{

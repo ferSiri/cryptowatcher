@@ -1,6 +1,6 @@
 import { client } from '../../../lib/sanity';
 
-export default async function addFav(req,res){
+export default function addFav(req,res){
     /*SE PODRÍA BUSCAR PRIMERO SI EXISTE CON LA QUERY *[references($person) && _type == "userFavs"] { person: uId}
     , SI EXISTE UN PATCH Y SINO UN CREATE Y LUEGO UN PATCH PERO TARDA DEMASIADO*/
     const {uId, cryptoId} = JSON.parse(req.body);
@@ -14,14 +14,15 @@ export default async function addFav(req,res){
         }
       }
     try {
-        await client.createIfNotExists(doc).then((res) => {
+        client.createIfNotExists(doc)
+        .then((res) => {
             client.patch(res._id)
             .setIfMissing({coins: []})
             .insert('after', 'coins[-1]', [{ _type:"reference", _ref:cryptoId}])
             .commit({
                 autoGenerateArrayKeys: true,
-              })
-          })
+            })
+        })
 
     }
     catch (err){
